@@ -26,6 +26,11 @@ class SuperState(ProxyObj):
     @property
     def me(self):
         return self.player_state(*self.key).position
+    
+    @property
+    def mon_ami(self):
+        return self.player_state(0,1).posion 
+       
     @property
     def my_goal(self):
         return Vector2D((self.my_team-1)*self.width,self.goal_center)
@@ -37,12 +42,12 @@ class SuperState(ProxyObj):
         return self.ball.position
     @property
     def can_kick(self):
-        return self.distance(self.ball_p)<(PLAYER_RADIUS+BALL_RADIUS)
+        return self.distance(self.ball_p)<(PLAYER_RADIUS+BALL_RADIUS)#donc si je peut faire le shoot 
     @property
     def width(self):
-        return GAME_WIDTH
+        return GAME_WIDTH  #largeur de du terrain 
     @property
-    def height(self):
+    def height(self):  #hauteur du terrain 
         return GAME_HEIGHT
     @property
     def goal_center(self):
@@ -50,7 +55,7 @@ class SuperState(ProxyObj):
     @property
     def goal_radius(self):
         return GAME_GOAL_HEIGHT/2.
-    def distance(self,p):
+    def distance(self,p):# la distance de quelque chose p de moi 
         return self.me.distance(p)
 
 class Comportement(ProxyObj):

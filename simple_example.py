@@ -1,21 +1,15 @@
-from soccersimulator import SoccerTeam, Simulation, show_simu, Strategy
+from soccersimulator import SoccerTeam, Simulation, show_simu
+from profAI import FonceurStrategy,DefenseurStrategy,SmartStrategy,get_team
 
-from strategies  import fonceurStrategy
-from strategies  import defenseStrategy
-from strategies  import  strmilStrategy
-from strategies  import dribleStrategy
-from strategies  import defensespeStrategy
 
-#from strategies  import strmilStrategy
 ## Creation d'une equipe
-pyteam = SoccerTeam(name="PyTeam")
+pyteam = get_team(2)
 thon = SoccerTeam(name="ThonTeam")
-pyteam.add("PyPlayer1",fonceurStrategy()) #on a une nouvele strategie 
-pyteam.add("PyPlayer2",defenseStrategy())
-thon.add("ThonPlayer1",strmilStrategy())   #Strategie aleatoire
-thon.add("ThonPlayer2", defenseStrategy())
-
+thon.add("PyPlayer",SmartStrategy()) #Strategie qui ne fait rien
+thon.add("ThonPlayer",DefenseurStrategy())   #Strategie aleatoire
+#thon.add("troisPlayer",DefenseurStrategy())
+#thon.add("quatPlayer",FonceurStrategy())
 #Creation d'une partie
-simu = Simulation(pyteam,thon)
+simu = Simulation(pyteam,thon) # simu declaré mais Simulation est un class appelé
 #Jouer et afficher la partie
-show_simu(simu)
+show_simu(simu)  # appelé

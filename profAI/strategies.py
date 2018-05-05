@@ -1,7 +1,7 @@
 from soccersimulator  import Strategy, SoccerAction, Vector2D
 from .tools import SuperState, Comportement, get_random_SoccerAction
-from .briques import ComportementNaif,ConditionAttaque,ConditionDefenseur,ConditionSmart,fonceur, defenseur,smart
-
+from .briques import ComportementNaif,ConditionAttaque,ConditionDefenseur,ConditionSmart,smart,fonceur, defenseur
+import pickle
 
 class RandomStrategy(Strategy):
     def __init__(self):
@@ -9,7 +9,7 @@ class RandomStrategy(Strategy):
     def compute_strategy(self,state,id_team,id_player):
         return get_random_SoccerAction()
 
-class FonceurStrategy(Strategy):           #ici l'attaque ce qu'il doit faire si la condition d'attaque est verifié
+class FonceurStrategy(Strategy):
     def __init__(self):
         Strategy.__init__(self,"Fonceur")
     def compute_strategy(self,state,id_team,id_player):
@@ -23,47 +23,48 @@ class DefenseurStrategy(Strategy):
         I = ConditionDefenseur(ComportementNaif(SuperState(state,id_team,id_player)))
         return defenseur(I)
 
+class FonceurTestStrategy(Strategy):
+    def __init__(self, strength=None,fn=None):
+        Strategy.__init__(self,"Fonceur")
+        self.strength = strength
+        self.best_force = None
+        if fn is not None:
+            import os
+            fn=os.path.join(os.path.dirname(os.path.realpath(__file__)),fn)
+            with open(fn,"rb") as f:
+                self.best_force = pickle.load(f)
+    def compute_strategy(self,state,id_team,id_player):
+        C = ComportementNaif(SuperState(state,id_team,id_player))
+        shoot_coef = self.get_force(C.me)
+        if shoot_coef is not None:
+            C.SHOOT_COEF = shoot_coef
+        I = ConditionAttaque(C)
+        return fonceur(I)
+    def get_force(self,position):
+        if self.best_force is not None:
+            return sorted([ ((position.x-k[0])**2+(position.y-k[1])**2,v) for (k,v) in self.best_force.items()])[0][1]
+        if self.strength is not None:
+            return self.strength
+        return None 
+
+
+
 
 class SmartStrategy(Strategy):
     def __init__(self):
         Strategy.__init__(self,"Smart")
     def compute_strategy(self,state,id_team,id_player):
-        I = ConditionSmart(ComportementNaif(SuperState(state,id_team,id_player)))
-        return smart(I)
+     I= ConditionSmart(ComportementNaif(SuperState(state,id_team,id_player)))#1-il faut cree condition smart dans brique
+     return smart(I)
+        
 
 
-
-
-class FonceurTestStrategy(Strategy):
-    def __init__(self, strength=None):
-        Strategy.__init__(self,"Fonceur")
-        self.strength = strength
+class SecretStrategy(Strategy):
+    def __init__(self):
+        Strategy.__init__(self,"Secret")
     def compute_strategy(self,state,id_team,id_player):
-        C = ComportementNaif(SuperState(state,id_team,id_player))
-        if self.strength:
-            C.SHOOT_COEF = self.strength
-        I = ConditionAttaque(C)
-        return fonceur(I)
-
-
-
-
-
- 
-
-
-class SmartTestStrategy(Strategy):
-    def __init__(self, strength=None):
-        Strategy.__init__(self,"Smart")
-        self.strength = strength
-    def compute_strategy(self,state,id_team,id_player):
-        C = Comportementav(SuperState(state,id_team,id_player))
-        if self.strength:
-            C.SHOOT_COEF = self.strength
-        I = ConditionAttaque(C)
-        return smart(I)
-
-
+     I= ConditionSectret(ComportementNaif(SuperState(state,id_team,id_player)))#1-il faut cree condition secret  dans brique
+     return secret(I)
 
 
 
