@@ -1,70 +1,58 @@
+import math 
 from soccersimulator  import Strategy, SoccerAction, Vector2D
-from .tools import SuperState, Comportement, get_random_SoccerAction
-from .briques import ComportementNaif,ConditionAttaque,ConditionDefenseur,ConditionSmart,smart,fonceur, defenseur
-import pickle
+from soccersimulator   import settings
 
+## Strategie aleatoire
 class RandomStrategy(Strategy):
     def __init__(self):
         Strategy.__init__(self,"Random")
     def compute_strategy(self,state,id_team,id_player):
-        return get_random_SoccerAction()
+        return SoccerAction(Vector2D.create_random(),Vector2D.create_random())
 
-class FonceurStrategy(Strategy):
+## Strategie fonceur 
+class fonceurStrategy(Strategy):
     def __init__(self):
-        Strategy.__init__(self,"Fonceur")
-    def compute_strategy(self,state,id_team,id_player):
-        I = ConditionAttaque(ComportementNaif(SuperState(state,id_team,id_player)))
-        return fonceur(I)
+        Strategy.__init__(self,"fonceur")
+    def compute_strategy(self,state, id_team, id_player):
+        player = state.player_state(id_team, id_player).position
+        player2=state.player_state(2,1).position
+        playerVS=state.player_state(1,1).position
+        ball = state.ball.position
+        if id_team == 2:
+            goal = Vector2D(0,settings.GAME_HEIGHT/2)
+        else:
+            goal = Vector2D(settings.GAME_WIDTH,settings.GAME_HEIGHT/2)
+        if player.distance(ball) < settings.PLAYER_RADIUS+settings.BALL_RADIUS:
+            return SoccerAction(shoot=0.01*(goal-player))
+        if player.distance(playerVS) <10* settings.PLAYER_RADIUS+settings.BALL_RADIUS:
+            return SoccerAction(shoot=(goal-player))
+        else:
+            return SoccerAction(acceleration=ball-player)
 
-class DefenseurStrategy(Strategy):
+## Strategie Defenseur
+class defenseStrategy(Strategy):
     def __init__(self):
-        Strategy.__init__(self, "Defenseur")
-    def compute_strategy(self,state,id_team,id_player):
-        I = ConditionDefenseur(ComportementNaif(SuperState(state,id_team,id_player)))
-        return defenseur(I)
-
-class FonceurTestStrategy(Strategy):
-    def __init__(self, strength=None,fn=None):
-        Strategy.__init__(self,"Fonceur")
-        self.strength = strength
-        self.best_force = None
-        if fn is not None:
-            import os
-            fn=os.path.join(os.path.dirname(os.path.realpath(__file__)),fn)
-            with open(fn,"rb") as f:
-                self.best_force = pickle.load(f)
-    def compute_strategy(self,state,id_team,id_player):
-        C = ComportementNaif(SuperState(state,id_team,id_player))
-        shoot_coef = self.get_force(C.me)
-        if shoot_coef is not None:
-            C.SHOOT_COEF = shoot_coef
-        I = ConditionAttaque(C)
-        return fonceur(I)
-    def get_force(self,position):
-        if self.best_force is not None:
-            return sorted([ ((position.x-k[0])**2+(position.y-k[1])**2,v) for (k,v) in self.best_force.items()])[0][1]
-        if self.strength is not None:
-            return self.strength
-        return None 
-
-
-
-
-class SmartStrategy(Strategy):
-    def __init__(self):
-        Strategy.__init__(self,"Smart")
-    def compute_strategy(self,state,id_team,id_player):
-     I= ConditionSmart(ComportementNaif(SuperState(state,id_team,id_player)))#1-il faut cree condition smart dans brique
-     return smart(I)
-        
-
-
-class SecretStrategy(Strategy):
-    def __init__(self):
-        Strategy.__init__(self,"Secret")
-    def compute_strategy(self,state,id_team,id_player):
-     I= ConditionSectret(ComportementNaif(SuperState(state,id_team,id_player)))#1-il faut cree condition secret  dans brique
-     return secret(I)
-
+        Strategy.__init__(self,"deffenseur")
+    def compute_strategy(self,state, id_team, id_player):
+        player=state.player_state(id_team,id_player).position
+        ball=state.ball.position 
+        if id_team == 2:
+            goal = Vector2D(0,settings.GAME_HEIGHT/2)
+            mygoal=Vector2D(settings.GAMEWIDTH,settings.GAME_HEIGHT/2)
+            player2=state.player_state(2,1).position
+        else:
+            goal = Vector2D(settings.GAME_WIDTH,settings.GAME_HEIGHT/2)
+            mygoal=Vector2D(0,settings.GAME_HEIGHT/2)
+            player2=state.player_state(2,1).position
+        if player.distance(ball) < settings.PLAYER_RADIUS+settings.BALL_RADIUS:
+           
+            return SoccerAction(shoot=(player2-player))#il passe vers goal
+            
+        if player.distance(ball)<15*(settings.PLAYER_RADIUS+settings.BALL_RADIUS):
+            return SoccerAction(acceleration=ball-player)
+        if player.distance(player2)<5*(settings.PLAYER_RADIUS+settings.BALL_RADIUS):
+            return SoccerAction(acceleration=mygoal-player)
+        else:
+            return SoccerAction(acceleration=mygoal-player)
 
 
