@@ -38,15 +38,15 @@ class defenseStrategy(Strategy):
         ball=state.ball.position 
         if id_team == 2:
             goal = Vector2D(0,settings.GAME_HEIGHT/2)
-            mygoal=Vector2D(settings.GAMEWIDTH,settings.GAME_HEIGHT/2)
-            player2=state.player_state(2,1).position
+            mygoal=Vector2D(settings.GAME_WIDTH,settings.GAME_HEIGHT/2)
+            player2=state.player_state(2,0).position
         else:
             goal = Vector2D(settings.GAME_WIDTH,settings.GAME_HEIGHT/2)
             mygoal=Vector2D(0,settings.GAME_HEIGHT/2)
-            player2=state.player_state(2,1).position
+            player2=state.player_state(2,0).position
         if player.distance(ball) < settings.PLAYER_RADIUS+settings.BALL_RADIUS:
            
-            return SoccerAction(shoot=(player2-player))#il passe vers goal
+            return SoccerAction(shoot=(player2-player))
             
         if player.distance(ball)<15*(settings.PLAYER_RADIUS+settings.BALL_RADIUS):
             return SoccerAction(acceleration=ball-player)
